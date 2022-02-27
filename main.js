@@ -1,21 +1,45 @@
+// ===== require ===== //
+const readline = require('readline-sync');
+
+// ===== let ===== //
 let puissance4;
-const nbColumn = 7, nbLine = 6;
+let finished = false;
+
+// ===== Const ===== //
+const nbColumn = 7, nbRow = 6;
+const playerOne = 1;
+const playerTwo = 2;
 const playerOneChar = "X";
 const playerTwoChar = "O";
 
-puissance4 = initEmptyTable(nbColumn, nbLine, 0);
-displayPuissance4(puissance4, playerOneChar, playerTwoChar);
+// ===== Logic ===== //
+puissance4 = initEmptyTable(nbColumn, nbRow, 0);
+displayPuissance4(puissance4, playerOneChar, playerTwoChar);;
+while(true) {
+    if (play(playerOne)) {
+        finished = true;
+        console.log(`Le joueur ${playerOne} a gagné`);
+        return;
+    }
+    if (!finished && play(playerTwo)) {
+        finished = true;
+        console.log(`Le joueur ${playerTwo} a gagné`);
+        return;
+    }
+}
+
+// ===== Functions ===== //
 
 /**
  * Create an empty table for the game
  * @param {Number} nbColumn Column of table
- * @param {Number} nbLine Row of table
+ * @param {Number} nbRow Row of table
  * @param {*} char Char to use for empty cell in table
  * @return {*[][]}
  */
-function initEmptyTable(nbColumn, nbLine, char = '') {
+function initEmptyTable(nbColumn, nbRow, char = '') {
     const table = [];
-    for (let i = 0; i < nbLine; i++) {
+    for (let i = 0; i < nbRow; i++) {
         const line = [];
         for (let j = 0; j < nbColumn; j++) {
             line.push(char);
@@ -47,4 +71,127 @@ function displayPuissance4(tab, p1Char, p2Char) {
         }
         console.log(line);
     }
+}
+
+/**
+ * Permit a player to choose a cell in table
+ * Return true if one of each player win
+ * @param {Number} player ID of player (1 or 2)
+ * @return {boolean} Verify if the game is finished
+ */
+function play(player) {
+    let emptyRow = -1;
+    let column = -1;
+    while (emptyRow === -1 || column <= 0 || column > 7) {
+        column = chooseColumn();
+        emptyRow = returnRowEmptyColumn(column);
+    }
+    puissance4[emptyRow][column - 1] = player;
+    displayPuissance4(puissance4, playerOneChar, playerTwoChar);
+    return verifyEndGame(player);
+}
+
+/**
+ * Ask a player to choose a column to place token in the table
+ * @return {Number} The column in the table
+ */
+function chooseColumn() {
+    return parseInt(readline.question('Quelle colonne choisissez-vous ? '));
+}
+
+/**
+ * Return the first empty row of a column
+ * @param {Number} column return -1 if column is full
+ * @return {number}
+ */
+function returnRowEmptyColumn(column) {
+    for (let i = nbRow - 1; i >= 0; i--) {
+         if (verifyEmptyCell(i, column)) {
+             return i;
+         }
+    }
+    return -1;
+}
+
+/**
+ *  Return a cell if empty (true or false)
+ * @param {number} row
+ * @param {number} column
+ * @return {boolean}
+ */
+function verifyEmptyCell(row, column) {
+    return puissance4[row][column - 1] === 0;
+}
+
+/**
+ * Verify if a player won
+ * @param {Number} player Id of player
+ * @return {boolean} return true or false
+ */
+function verifyEndGame(player) {
+    return !!(verifyRowEndGame(player) ||
+        verifyColumnEndGame(player) ||
+        verifyDiagonalEndGame(player));
+}
+
+/**
+ * Verify if 4 tokens of a player are aligned
+ * @param {Number} player Id of player
+ * @return {boolean} return true or false
+ */
+function verifyRowEndGame(player) {
+    for (let i = nbRow - 1; i >= 0; i--) {
+        for (let j = 0; j < nbColumn - 3; j++) {
+            if (
+                puissance4[i][j] === player &&
+                puissance4[i][j + 1] === player &&
+                puissance4[i][j + 2] === player &&
+                puissance4[i][j + 3] === player
+            ) return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Verify if 4 tokens of a player are in column
+ * @param player
+ * @return {boolean} Return true or false
+ */
+function verifyColumnEndGame(player) {
+    for (let i = 0; i < nbColumn; i++) {
+        for (let j = nbRow - 4; j >= 0; j--) {
+            if (
+                puissance4[j][i] === player &&
+                puissance4[j + 1][i] === player &&
+                puissance4[j + 2][i] === player &&
+                puissance4[j + 3][i] === player
+            ) return true;
+        }
+    }
+}
+
+/**
+ * Verify if 4 of a player's chips are diagonal
+ * @param player
+ * @return {boolean}
+ */
+function verifyDiagonalEndGame(player) {
+    for (let i = nbRow - 1; i >= 3; i--) {
+        for (let j = 0; j < nbColumn; j++) {
+            if (
+                puissance4[i][j] === player &&
+                puissance4[i - 1][j + 1] === player &&
+                puissance4[i - 2][j + 2] === player &&
+                puissance4[i - 3][j + 3] === player
+            ) return true;
+            if (
+                puissance4[i][j] === player &&
+                puissance4[i - 1][j - 1] === player &&
+                puissance4[i - 2][j - 2] === player &&
+                puissance4[i - 3][j - 3] === player
+            ) return true;
+        }
+    }
+    return false;
 }
