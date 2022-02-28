@@ -9,10 +9,11 @@ let finished = false;
 const nbColumn = 7, nbRow = 6;
 const playerOne = 1;
 const playerTwo = 2;
-const playerOneChar = "X";
-const playerTwoChar = "O";
+const playerOneChar = chooseChar(playerOne);
+const playerTwoChar = chooseChar(playerTwo);
 
 // ===== Logic ===== //
+intro();
 puissance4 = initEmptyTable(nbColumn, nbRow, 0);
 displayPuissance4(puissance4, playerOneChar, playerTwoChar);;
 while(true) {
@@ -29,6 +30,27 @@ while(true) {
 }
 
 // ===== Functions ===== //
+
+function intro() {
+    let text = "*******************************************************\n";
+    text += "************** Bienvenue sur puissance 4 ************** \n";
+    text += "*******************************************************\n";
+    console.log(text);
+}
+
+function inputString(text) {
+    return readline.question(text);
+}
+
+/**
+ * Permit a player to choose a char to play with
+ * @param {Number} player
+ * @return {string} return the char that the player chose
+ */
+function chooseChar(player) {
+    const text = `Veuillez choisir le caractère que vous voulez pour le joueur ${player} : \n`;
+    return inputString(text).toUpperCase();
+}
 
 /**
  * Create an empty table for the game
@@ -96,7 +118,7 @@ function play(player) {
  * @return {Number} The column in the table
  */
 function chooseColumn() {
-    return parseInt(readline.question('Quelle colonne choisissez-vous ? '));
+    return parseInt(inputString("Quelle colonne choisissez-vous ?"));
 }
 
 /**
